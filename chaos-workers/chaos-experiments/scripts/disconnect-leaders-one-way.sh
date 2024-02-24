@@ -5,7 +5,6 @@ source utils.sh
 
 ## Intended for Production L cluster
 
-
 partition=1
 namespace=$(getNamespace)
 gateway=$(getGateway)
@@ -19,20 +18,19 @@ index=$(getIndexOfPodForPartitionInState "3" "LEADER")
 leaderTwo=$(getBroker "$index")
 leaderTwoIp=$(kubectl get pod "$leaderTwo" -n "$namespace" --template="{{.status.podIP}}")
 
-
 # To print the topology in the journal
 retryUntilSuccess kubectl exec "$gateway" -n "$namespace" -- zbctl status --insecure
 
-# we put all into one function because we need to make sure that even after preemption the 
+# we put all into one function because we need to make sure that even after preemption the
 # dependency is installed
 function disconnect() {
- toChangedPod="$1"
- targetIp="$2"
+  toChangedPod="$1"
+  targetIp="$2"
 
- # update to have access to ip
- kubectl exec -n "$namespace" "$toChangedPod" -- apt update
- kubectl exec -n "$namespace" "$toChangedPod" -- apt install -y iproute2
- kubectl exec "$toChangedPod" -n "$namespace" -- ip route add unreachable "$targetIp"
+  # update to have access to ip
+  kubectl exec -n "$namespace" "$toChangedPod" -- apt update
+  kubectl exec -n "$namespace" "$toChangedPod" -- apt install -y iproute2
+  kubectl exec "$toChangedPod" -n "$namespace" -- ip route add unreachable "$targetIp"
 
 }
 

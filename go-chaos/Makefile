@@ -3,7 +3,7 @@ directory=.
 
 # test: runs the tests without updating the golden files (runs checks against golden files)
 .PHONY: test
-test:   build	
+test:   build
 	go test $(directory)/...
 # go build
 .PHONY: build
@@ -12,13 +12,13 @@ build:  fmt
 
 # golden: runs the tests with updating the golden files
 .PHONY: golden
-golden:	
-	go test $(directory)/... -args -update-golden 
+golden:
+	go test $(directory)/... -args -update-golden
 
 # fmt: runs the gofmt in order to format all go files
 .PHONY: fmt
 fmt:
-	go fmt $(directory)/... 
+	go fmt $(directory)/...
 
 # addlicense: add license headers to go files
 .PHONY: addlicense

@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 FROM golang:alpine as builder
 RUN apk update && apk upgrade && apk add --no-cache ca-certificates && update-ca-certificates
-WORKDIR /app 
+WORKDIR /app
 
 COPY --link go.mod go.sum .
 RUN go mod download

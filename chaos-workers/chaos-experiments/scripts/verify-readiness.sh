@@ -7,7 +7,7 @@ namespace=$(getNamespace)
 
 # verify that everything is running
 
-if [ "${CHAOS_SETUP}" == "cloud" ]; then
+if [ "$CHAOS_SETUP" == "cloud" ]; then
   # Wait until brokers are ready. The component should be broker, but it is wrongly labelled as gateway
   kubectl wait --for=condition=Ready pod -l app.kubernetes.io/component=gateway --timeout=900s -n "$namespace"
   # Wait until all gateway pods are running. We cannot use `--for=condition=Ready` pod for gateway because

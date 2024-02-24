@@ -1,9 +1,9 @@
 ---
 layout: posts
-title:  "Message Correlation after Network Partition"
-date:   2022-08-31
-categories: 
-  - chaos_experiment 
+title: "Message Correlation after Network Partition"
+date: 2022-08-31
+categories:
+  - chaos_experiment
   - bpmn
 tags:
   - availability
@@ -44,12 +44,12 @@ As a setup, I installed our benchmarks, with Operate enabled.
 This allows us to also view the details in Operate.
 
 ```shell
-$ diff zeebe-values.yaml ../default/zeebe-values.yaml 
+$ diff zeebe-values.yaml ../default/zeebe-values.yaml
 5,8d4
 <   identity:
 <     auth:
 <       enabled: false
-< 
+<
 28c24
 <   containerSecurityContext:
 ---
@@ -82,7 +82,7 @@ I added a new feature ([PR #166](https://github.com/zeebe-io/zeebe-chaos/pull/16
 $ ./zbchaos publish message -v --partitionId 3
 Connecting to zell-chaos
 Successfully created port forwarding tunnel
-Send message 'msg', with correaltion key '2' (ASCII: 50) 
+Send message 'msg', with correaltion key '2' (ASCII: 50)
 Message was sent and returned key 6755399441055796, which corresponds to partition: 3
 ```
 
@@ -123,6 +123,7 @@ All Zeebe nodes are running.
 ```
 
 After checking the readiness we can check what the current topology is:
+
 ```shell
 $ ./zbchaos topology
 Node      |Partition 1         |Partition 2         |Partition 3
@@ -130,23 +131,24 @@ Node      |Partition 1         |Partition 2         |Partition 3
 1         |FOLLOWER (HEALTHY)  |LEADER (HEALTHY)    |FOLLOWER (HEALTHY)
 2         |FOLLOWER (HEALTHY)  |FOLLOWER (HEALTHY)  |LEADER (HEALTHY)
 ```
+
 We can see that the leaders are well distributed. I pick partition 3 as our message publish partition, and partition 1 as our partition for the process instance. Since we can't control really the round-robin mechanism, we need to create multiple messages and multiple process instances (for each partition). During our experiment, we will only look at the instance on partition one.
 
 ```shell
 $ ./zbchaos publish message -v --partitionId 3
 Connecting to zell-chaos
 Successfully created port forwarding tunnel
-Send message 'msg', with correaltion key '2' (ASCII: 50) 
+Send message 'msg', with correaltion key '2' (ASCII: 50)
 Message was sent and returned key 6755399441055745, which corresponds to partition: 3
 [zell go-chaos/ cluster: zeebe-cluster ns:zell-chaos]$ ./zbchaos publish message -v --partitionId 3
 Connecting to zell-chaos
 Successfully created port forwarding tunnel
-Send message 'msg', with correaltion key '2' (ASCII: 50) 
+Send message 'msg', with correaltion key '2' (ASCII: 50)
 Message was sent and returned key 6755399441055746, which corresponds to partition: 3
 [zell go-chaos/ cluster: zeebe-cluster ns:zell-chaos]$ ./zbchaos publish message -v --partitionId 3
 Connecting to zell-chaos
 Successfully created port forwarding tunnel
-Send message 'msg', with correaltion key '2' (ASCII: 50) 
+Send message 'msg', with correaltion key '2' (ASCII: 50)
 Message was sent and returned key 6755399441055747, which corresponds to partition: 3
 ```
 
@@ -195,7 +197,9 @@ github.com/zeebe-io/zeebe-chaos/go-chaos/cmd.Execute()
 main.main()
 	/home/zell/goPath/src/github.com/zeebe-io/zeebe-chaos/go-chaos/main.go:8 +0x17
 ```
+
 I retried it:
+
 ```shell
 $ ./zbchaos verify steady-state --awaitResult --partitionId 1 --processModelPath ../msg-catch.bpmn --variables '{"key":"2"}' -v
 Connecting to zell-chaos
@@ -243,9 +247,10 @@ Execute ["sh" "-c" "command -v ip"] on pod zell-chaos-zeebe-1
 Error on connection Broker: zell-chaos-zeebe-1. Error: Execution exited with exit code 127 (Command not found). It is likely that the broker was not disconnected or restarted in between.
 Execute ["sh" "-c" "command -v ip"] on pod zell-chaos-zeebe-2
 Error on connection Broker: zell-chaos-zeebe-2. Error: Execution exited with exit code 127 (Command not found). It is likely that the broker was not disconnected or restarted in between.
-``` 
+```
 
 It looks like the Broker-2 was restarted in between, which is really the case if we check the `kubectl get pods`
+
 ```
 [zell go-chaos/ cluster: zeebe-cluster ns:zell-chaos]$ kgpo
 NAME                                        READY   STATUS      RESTARTS   AGE
@@ -294,5 +299,5 @@ We can see that the experiment was successful, and the message has been correlat
 
 ## Found Bugs
 
-* I learned that the go zeebe client, doesn't set a default TTL which was interesting to find out (and somehow unexpected).
-* The zbchaos uses always the same port for connecting to the kubernetes and zeebe cluster, which makes it impossible to run multiple commands. We should use random ports to make this possible.
+- I learned that the go zeebe client, doesn't set a default TTL which was interesting to find out (and somehow unexpected).
+- The zbchaos uses always the same port for connecting to the kubernetes and zeebe cluster, which makes it impossible to run multiple commands. We should use random ports to make this possible.

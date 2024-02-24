@@ -2,20 +2,18 @@
 
 CHAOS_SETUP=${CHAOS_SETUP:-"cloud"}
 
-function getNamespace()
-{
+function getNamespace() {
   # shellcheck disable=SC2153
-  if [ -z "${NAMESPACE}" ]
-  then
-   namespace=$(kubectl config view --minify --output 'jsonpath={..namespace}')
+  if [ -z "$NAMESPACE" ]; then
+    namespace=$(kubectl config view --minify --output 'jsonpath={..namespace}')
   else
-   namespace=$NAMESPACE
+    namespace=$NAMESPACE
   fi
- echo "$namespace"
+  echo "$namespace"
 }
 
 function getBrokerLabels() {
-  if [ "${CHAOS_SETUP}" == "cloud" ]; then
+  if [ "$CHAOS_SETUP" == "cloud" ]; then
     # For backwards compatability the brokers kept the gateway labels, for a statefulset the labels are not modifiable
     # To still be able to distinguish the standalone gateway with the broker, the gateway got a new label.
     echo "-l app.kubernetes.io/app=zeebe -l app.kubernetes.io/component=gateway"
@@ -25,7 +23,7 @@ function getBrokerLabels() {
 }
 
 function getGatewayLabels() {
-  if [ "${CHAOS_SETUP}" == "cloud" ]; then
+  if [ "$CHAOS_SETUP" == "cloud" ]; then
     # For backwards compatability the brokers kept the gateway labels, for a statefulset the labels are not modifiable
     # To still be able to distinguish the standalone gateway with the broker, the gateway got a new label.
     echo "-l app.kubernetes.io/app=zeebe -l app.kubernetes.io/component=standalone-gateway"
@@ -34,46 +32,41 @@ function getGatewayLabels() {
   fi
 }
 
-function runOnAllBrokers()
-{
+function runOnAllBrokers() {
   namespace=$(getNamespace)
 
   # disable word splitting check, word splitting is necessary for broker labels
   # shellcheck disable=SC2046
-  pods=$(kubectl get pod -n "$namespace" $(getBrokerLabels) -o jsonpath="{.items[*].metadata.name}")
+  pods=$(kubectl get pod -n "$namespace" "$(getBrokerLabels)" -o jsonpath="{.items[*].metadata.name}")
 
   set +e
-  for pod in $pods
-  do
+  for pod in "$pods"; do
     kubectl -n "$namespace" exec "$pod" -- "$@"
   done
   set -e
 }
 
-function getBroker()
-{
+function getBroker() {
   index=${1:-0}
 
   namespace=$(getNamespace)
   # disable word splitting check, word splitting is necessary for broker labels
   # shellcheck disable=SC2046
-  pod=$(kubectl get pod -n "$namespace" $(getBrokerLabels) -o jsonpath="{.items[$index].metadata.name}")
+  pod=$(kubectl get pod -n "$namespace" "$(getBrokerLabels)" -o jsonpath="{.items[$index].metadata.name}")
 
   echo "$pod"
 }
 
-function getGateway()
-{
+function getGateway() {
   namespace=$(getNamespace)
   # disable word splitting check, word splitting is necessary for gateway labels
   # shellcheck disable=SC2046
-  pod=$(kubectl get pod -n "$namespace" --field-selector status.phase=Running $(getGatewayLabels) -o jsonpath="{.items[0].metadata.name}")
+  pod=$(kubectl get pod -n "$namespace" --field-selector status.phase=Running "$(getGatewayLabels)" -o jsonpath="{.items[0].metadata.name}")
 
   echo "$pod"
 }
 
-function getIndexOfPodForPartitionInState()
-{
+function getIndexOfPodForPartitionInState() {
   partition="$1"
   # expect caps for raft roles
   state=${2^^}
@@ -81,9 +74,8 @@ function getIndexOfPodForPartitionInState()
   namespace=$(getNamespace)
 
   # To print the topology in the journal
-  until topology="$(kubectl exec "$pod" -n "$namespace" -- zbctl status --insecure -o json)"
-  do
-    true;
+  until topology="$(kubectl exec "$pod" -n "$namespace" -- zbctl status --insecure -o json)"; do
+    true
   done
 
   index=$(echo "$topology" | jq "[.brokers[]|select(.partitions[]| select(.partitionId == $partition) and .role == \"$state\")][0].nodeId")
@@ -94,8 +86,7 @@ function getIndexOfPodForPartitionInState()
 # In kubernetes some commands can fail because pods are rescheduled, preempted etc. and we want to be more resilient in our tests
 function retryUntilSuccess() {
   echo "Run '$*'"
-  until "$@"
-  do
+  until "$@"; do
     echo "Failed to execute: '$*'. Retry."
   done
 }

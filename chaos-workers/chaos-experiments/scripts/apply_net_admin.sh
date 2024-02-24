@@ -1,7 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-scriptPath=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+scriptPath=$(
+  cd "$(dirname "${BASH_SOURCE[0]}")"
+  pwd -P
+)
 source utils.sh
 
 namespace=$(getNamespace)
@@ -12,4 +15,4 @@ kubectl patch zb "$CLUSTERID" --type merge --patch='{"spec":{"controller":{"reco
 kubectl patch statefulset zeebe -n "$namespace" --patch "$(cat "$scriptPath/net_admin_patch.yaml")"
 
 # shellcheck disable=SC2046
-kubectl delete pod $(getBrokerLabels)
+kubectl delete pod "$(getBrokerLabels)"
