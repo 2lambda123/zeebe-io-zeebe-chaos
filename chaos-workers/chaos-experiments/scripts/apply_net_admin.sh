@@ -12,4 +12,4 @@ kubectl patch zb "$CLUSTERID" --type merge --patch='{"spec":{"controller":{"reco
 kubectl patch statefulset zeebe -n "$namespace" --patch "$(cat "$scriptPath/net_admin_patch.yaml")"
 
 # shellcheck disable=SC2046
-kubectl delete pod $(getBrokerLabels)
+kubectl delete pod "$(getBrokerLabels)"

@@ -5,7 +5,7 @@ CHAOS_SETUP=${CHAOS_SETUP:-"cloud"}
 function getNamespace()
 {
   # shellcheck disable=SC2153
-  if [ -z "${NAMESPACE}" ]
+  if [ -z "$NAMESPACE" ]
   then
    namespace=$(kubectl config view --minify --output 'jsonpath={..namespace}')
   else
@@ -15,7 +15,7 @@ function getNamespace()
 }
 
 function getBrokerLabels() {
-  if [ "${CHAOS_SETUP}" == "cloud" ]; then
+  if [ "$CHAOS_SETUP" == "cloud" ]; then
     # For backwards compatability the brokers kept the gateway labels, for a statefulset the labels are not modifiable
     # To still be able to distinguish the standalone gateway with the broker, the gateway got a new label.
     echo "-l app.kubernetes.io/app=zeebe -l app.kubernetes.io/component=gateway"
@@ -25,7 +25,7 @@ function getBrokerLabels() {
 }
 
 function getGatewayLabels() {
-  if [ "${CHAOS_SETUP}" == "cloud" ]; then
+  if [ "$CHAOS_SETUP" == "cloud" ]; then
     # For backwards compatability the brokers kept the gateway labels, for a statefulset the labels are not modifiable
     # To still be able to distinguish the standalone gateway with the broker, the gateway got a new label.
     echo "-l app.kubernetes.io/app=zeebe -l app.kubernetes.io/component=standalone-gateway"
@@ -40,10 +40,10 @@ function runOnAllBrokers()
 
   # disable word splitting check, word splitting is necessary for broker labels
   # shellcheck disable=SC2046
-  pods=$(kubectl get pod -n "$namespace" $(getBrokerLabels) -o jsonpath="{.items[*].metadata.name}")
+  pods=$(kubectl get pod -n "$namespace" "$(getBrokerLabels)" -o jsonpath="{.items[*].metadata.name}")
 
   set +e
-  for pod in $pods
+  for pod in "$pods"
   do
     kubectl -n "$namespace" exec "$pod" -- "$@"
   done
@@ -57,7 +57,7 @@ function getBroker()
   namespace=$(getNamespace)
   # disable word splitting check, word splitting is necessary for broker labels
   # shellcheck disable=SC2046
-  pod=$(kubectl get pod -n "$namespace" $(getBrokerLabels) -o jsonpath="{.items[$index].metadata.name}")
+  pod=$(kubectl get pod -n "$namespace" "$(getBrokerLabels)" -o jsonpath="{.items[$index].metadata.name}")
 
   echo "$pod"
 }
@@ -67,7 +67,7 @@ function getGateway()
   namespace=$(getNamespace)
   # disable word splitting check, word splitting is necessary for gateway labels
   # shellcheck disable=SC2046
-  pod=$(kubectl get pod -n "$namespace" --field-selector status.phase=Running $(getGatewayLabels) -o jsonpath="{.items[0].metadata.name}")
+  pod=$(kubectl get pod -n "$namespace" --field-selector status.phase=Running "$(getGatewayLabels)" -o jsonpath="{.items[0].metadata.name}")
 
   echo "$pod"
 }
