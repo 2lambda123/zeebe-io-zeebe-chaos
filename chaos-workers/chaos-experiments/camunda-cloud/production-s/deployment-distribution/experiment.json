@@ -57,10 +57,7 @@
       "provider": {
         "type": "process",
         "path": "deploy-different-versions.sh",
-        "arguments": [
-          "Follower",
-          "3"
-        ]
+        "arguments": ["Follower", "3"]
       }
     },
     {
@@ -78,10 +75,7 @@
       "provider": {
         "type": "process",
         "path": "start-instance-on-partition-with-version.sh",
-        "arguments": [
-          "1",
-          "10"
-        ],
+        "arguments": ["1", "10"],
         "timeout": 900
       }
     },
@@ -92,10 +86,7 @@
       "provider": {
         "type": "process",
         "path": "start-instance-on-partition-with-version.sh",
-        "arguments": [
-          "2",
-          "10"
-        ],
+        "arguments": ["2", "10"],
         "timeout": 900
       }
     },
@@ -106,10 +97,7 @@
       "provider": {
         "type": "process",
         "path": "start-instance-on-partition-with-version.sh",
-        "arguments": [
-          "3",
-          "10"
-        ],
+        "arguments": ["3", "10"],
         "timeout": 900
       }
     }
