@@ -1,7 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-scriptPath=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+scriptPath=$(
+  cd "$(dirname "${BASH_SOURCE[0]}")"
+  pwd -P
+)
 source utils.sh
 
 namespace=$(getNamespace)

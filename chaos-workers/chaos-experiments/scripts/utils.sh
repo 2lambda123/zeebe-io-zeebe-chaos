@@ -2,16 +2,14 @@
 
 CHAOS_SETUP=${CHAOS_SETUP:-"cloud"}
 
-function getNamespace()
-{
+function getNamespace() {
   # shellcheck disable=SC2153
-  if [ -z "$NAMESPACE" ]
-  then
-   namespace=$(kubectl config view --minify --output 'jsonpath={..namespace}')
+  if [ -z "$NAMESPACE" ]; then
+    namespace=$(kubectl config view --minify --output 'jsonpath={..namespace}')
   else
-   namespace=$NAMESPACE
+    namespace=$NAMESPACE
   fi
- echo "$namespace"
+  echo "$namespace"
 }
 
 function getBrokerLabels() {
@@ -34,8 +32,7 @@ function getGatewayLabels() {
   fi
 }
 
-function runOnAllBrokers()
-{
+function runOnAllBrokers() {
   namespace=$(getNamespace)
 
   # disable word splitting check, word splitting is necessary for broker labels
@@ -43,15 +40,13 @@ function runOnAllBrokers()
   pods=$(kubectl get pod -n "$namespace" "$(getBrokerLabels)" -o jsonpath="{.items[*].metadata.name}")
 
   set +e
-  for pod in "$pods"
-  do
+  for pod in "$pods"; do
     kubectl -n "$namespace" exec "$pod" -- "$@"
   done
   set -e
 }
 
-function getBroker()
-{
+function getBroker() {
   index=${1:-0}
 
   namespace=$(getNamespace)
@@ -62,8 +57,7 @@ function getBroker()
   echo "$pod"
 }
 
-function getGateway()
-{
+function getGateway() {
   namespace=$(getNamespace)
   # disable word splitting check, word splitting is necessary for gateway labels
   # shellcheck disable=SC2046
@@ -72,8 +66,7 @@ function getGateway()
   echo "$pod"
 }
 
-function getIndexOfPodForPartitionInState()
-{
+function getIndexOfPodForPartitionInState() {
   partition="$1"
   # expect caps for raft roles
   state=${2^^}
@@ -81,9 +74,8 @@ function getIndexOfPodForPartitionInState()
   namespace=$(getNamespace)
 
   # To print the topology in the journal
-  until topology="$(kubectl exec "$pod" -n "$namespace" -- zbctl status --insecure -o json)"
-  do
-    true;
+  until topology="$(kubectl exec "$pod" -n "$namespace" -- zbctl status --insecure -o json)"; do
+    true
   done
 
   index=$(echo "$topology" | jq "[.brokers[]|select(.partitions[]| select(.partitionId == $partition) and .role == \"$state\")][0].nodeId")
@@ -94,8 +86,7 @@ function getIndexOfPodForPartitionInState()
 # In kubernetes some commands can fail because pods are rescheduled, preempted etc. and we want to be more resilient in our tests
 function retryUntilSuccess() {
   echo "Run '$*'"
-  until "$@"
-  do
+  until "$@"; do
     echo "Failed to execute: '$*'. Retry."
   done
 }
