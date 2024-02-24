@@ -45,7 +45,7 @@ var deployCmd = &cobra.Command{
 var deployProcessModelCmd = &cobra.Command{
 	Use:   "process",
 	Short: "Deploy a process model to Zeebe",
-	Long: `Deploy a process model to Zeebe. 
+	Long: `Deploy a process model to Zeebe.
 Can be used to deploy a specific process model or multiple version of a default BPMN and DMN model.
 Defaults to the later, which is useful for experimenting with deployment distribution.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -77,7 +77,7 @@ Defaults to the later, which is useful for experimenting with deployment distrib
 var deployWorkerCmd = &cobra.Command{
 	Use:   "worker",
 	Short: "Deploy a worker deployment to the Zeebe cluster",
-	Long: `Deploy a worker deployment to the Zeebe cluster. 
+	Long: `Deploy a worker deployment to the Zeebe cluster.
 The workers can be used as part of some chaos experiments to complete process instances etc.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		k8Client, err := internal.CreateK8Client()
