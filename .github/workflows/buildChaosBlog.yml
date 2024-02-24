@@ -1,0 +1,26 @@
+name: Build Chaos Blog
+
+on:
+  push:
+    branches:
+      - "*"
+    paths:
+      - chaos-days/**
+
+jobs:
+  build:
+    name: Build the documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install Dependencies
+        run: |
+          cd chaos-days
+          npm i
+      - name: Build
+        run: |
+          cd chaos-days
+          npm run build

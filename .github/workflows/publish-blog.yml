@@ -1,0 +1,42 @@
+name: Publish Chaos Blog
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - chaos-days/**
+
+env:
+  # Used by docusaurus publish-site command
+  GIT_USERNAME: camunda-bot
+  REPO: ${{ github.repository }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install Dependencies
+        run: |
+          cd chaos-days
+          npm i
+      - name: Build
+        run: |
+          cd chaos-days
+          npm run build
+      - name: Publish
+        run: |
+          cd chaos-days
+          # Configure git client
+          echo "Git repo - $REPO"
+          echo "Git user - $GIT_USERNAME"
+          echo "Event name - ${{github.event_name }}"
+          git config --global user.email "$GIT_USERNAME@users.noreply.github.com"
+          git config --global user.name "$GIT_USERNAME"
+          echo "machine github.com login $GIT_USERNAME password ${{ secrets.GITHUB_TOKEN }}" > ~/.netrc
+          # Run docusaurus-publish
+          GIT_USER=$GIT_USERNAME npm run deploy
